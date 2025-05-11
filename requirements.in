@@ -22,7 +22,7 @@ langcodes
 packaging
 
 # Audio analysis
-librosa~=0.9.2
+librosa
 # Audio manipulation
 pydub
 # Audio Separation
@@ -70,6 +70,3 @@ music21
 # Data structure
 dataclasses
 dataclasses_json
-
-# Array support
-numpy<2
