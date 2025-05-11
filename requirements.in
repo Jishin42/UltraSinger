@@ -70,3 +70,6 @@ music21
 # Data structure
 dataclasses
 dataclasses_json
+
+# Array support
+numpy<2
