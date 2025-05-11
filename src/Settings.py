@@ -26,6 +26,7 @@ class Settings:
     keep_cache = False
     interactive_mode = False
     user_ffmpeg_path = ""
+    split_syllables = False
 
     # Process data Paths
     input_file_path = ""

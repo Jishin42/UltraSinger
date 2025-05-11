@@ -168,7 +168,7 @@ def run() -> tuple[str, Score, Score]:
         TranscribeAudio(process_data)
 
     # Split syllables into segments
-    if not settings.ignore_audio:
+    if settings.split_syllables and not settings.ignore_audio:
         process_data.transcribed_data = split_syllables_into_segments(process_data.transcribed_data,
                                                                   process_data.media_info.bpm)
 
@@ -245,32 +245,43 @@ def split_syllables_into_segments(
         first_segment.is_word_end = False
         new_data.append(first_segment)
 
-        full_segments, partial_segment = divmod(remainder, syllable_segment_size)
+        if settings.split_syllables:
+            full_segments, partial_segment = divmod(remainder, syllable_segment_size)
 
-        if full_segments >= 1:
-            first_segment.is_hyphen = True
-            for i in range(int(full_segments)):
+            if full_segments >= 1:
+                first_segment.is_hyphen = True
+                for i in range(int(full_segments)):
+                    segment = TranscribedData()
+                    segment.word = "~"
+                    segment.start = filler_words_start + round(
+                        i * syllable_segment_size, segment_size_decimal_points
+                    )
+                    segment.end = segment.start + syllable_segment_size
+                    segment.is_hyphen = True
+                    segment.is_word_end = False
+                    new_data.append(segment)
+
+            if partial_segment >= 0.01:
+                first_segment.is_hyphen = True
                 segment = TranscribedData()
                 segment.word = "~"
                 segment.start = filler_words_start + round(
-                    i * syllable_segment_size, segment_size_decimal_points
+                    full_segments * syllable_segment_size, segment_size_decimal_points
                 )
-                segment.end = segment.start + syllable_segment_size
+                segment.end = segment.start + partial_segment
                 segment.is_hyphen = True
                 segment.is_word_end = False
                 new_data.append(segment)
-
-        if partial_segment >= 0.01:
-            first_segment.is_hyphen = True
+        else:
+            # only one segment per syllable:
             segment = TranscribedData()
             segment.word = "~"
-            segment.start = filler_words_start + round(
-                full_segments * syllable_segment_size, segment_size_decimal_points
-            )
-            segment.end = segment.start + partial_segment
+            segment.start = filler_words_start
+            segment.end = data.end
             segment.is_hyphen = True
             segment.is_word_end = False
             new_data.append(segment)
+ 
 
         if has_space:
             new_data[-1].word += " "
