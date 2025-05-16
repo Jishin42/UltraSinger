@@ -1,6 +1,5 @@
 """Convert audio to other formats"""
 
-from pydub import AudioSegment
 import librosa
 import soundfile as sf
 
@@ -18,5 +17,5 @@ def convert_wav_to_mp3(input_file_path: str, output_file_path: str) -> None:
     """Convert wav to mp3"""
     print(f"{ULTRASINGER_HEAD} Converting wav to mp3. -> {output_file_path}")
 
-    sound = AudioSegment.from_wav(input_file_path)
-    sound.export(output_file_path, format="mp3")
+    y, sr = librosa.load(input_file_path)
+    sf.write(output_file_path, y, sr, format="MP3", bitrate_mode='VARIABLE', compression_level=.30)
